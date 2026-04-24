@@ -3,6 +3,8 @@
 // and leaked bot-like behavior (extra request to a testing service on startup).
 const DEFAULT_ACCEPT_LANGUAGE = "en-US,en;q=0.9";
 
+const { applyFingerprint } = require("../module/fingerprint");
+
 function getSource({ url, proxy }) {
   return new Promise(async (resolve, reject) => {
     if (!url) return reject("Missing url parameter");
@@ -25,17 +27,15 @@ function getSource({ url, proxy }) {
     try {
       const page = await context.newPage();
 
-      // Set Accept-Language header so all requests from this page include it
-      await page.setExtraHTTPHeaders({
-        "Accept-Language": DEFAULT_ACCEPT_LANGUAGE,
-      });
+      // Randomize viewport + Accept-Language per request
+      const fp = await applyFingerprint(page);
 
       if (proxy?.username && proxy?.password)
         await page.authenticate({
           username: proxy.username,
           password: proxy.password,
         });
-      let acceptLanguage = DEFAULT_ACCEPT_LANGUAGE;
+      let acceptLanguage = fp.locale;
       await page.setRequestInterception(true);
       page.on("request", async (request) => request.continue());
       page.on("response", async (res) => {

@@ -1,3 +1,5 @@
+const { applyFingerprint } = require("../module/fingerprint");
+
 function getSource({ url, proxy }) {
   return new Promise(async (resolve, reject) => {
     if (!url) return reject("Missing url parameter");
@@ -20,10 +22,8 @@ function getSource({ url, proxy }) {
     try {
       const page = await context.newPage();
 
-      // Set realistic Accept-Language and cache headers
-      await page.setExtraHTTPHeaders({
-        "Accept-Language": "en-US,en;q=0.9",
-      });
+      // Randomize viewport + Accept-Language per request
+      await applyFingerprint(page);
 
       if (proxy?.username && proxy?.password)
         await page.authenticate({

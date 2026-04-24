@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { applyFingerprint } = require("../module/fingerprint");
 function solveTurnstileMin({ url, proxy }) {
   return new Promise(async (resolve, reject) => {
     if (!url) return reject("Missing url parameter");
@@ -23,9 +24,7 @@ function solveTurnstileMin({ url, proxy }) {
     try {
       const page = await context.newPage();
 
-      await page.setExtraHTTPHeaders({
-        "Accept-Language": "en-US,en;q=0.9",
-      });
+      await applyFingerprint(page);
 
       if (proxy?.username && proxy?.password)
         await page.authenticate({
