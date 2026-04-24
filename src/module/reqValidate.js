@@ -30,6 +30,11 @@ const schema = {
         },
         "siteKey": {
             "type": "string"
+        },
+        "waitForMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000
         }
     },
     "required": ["mode", "url"],

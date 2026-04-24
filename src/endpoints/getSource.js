@@ -1,8 +1,12 @@
 const { applyFingerprint } = require("../module/fingerprint");
 
-function getSource({ url, proxy }) {
+function getSource({ url, proxy, waitForMs }) {
   return new Promise(async (resolve, reject) => {
     if (!url) return reject("Missing url parameter");
+
+    // Wait up to waitForMs for async JS (AJAX verdicts, fingerprint scripts)
+    // to finish updating the DOM before snapshot. Capped at 30s to avoid runaway.
+    const extraWait = Math.min(Number(waitForMs) || 0, 30000);
     const context = await global.browser
       .createBrowserContext({
         proxyServer: proxy ? `http://${proxy.host}:${proxy.port}` : undefined, // https://pptr.dev/api/puppeteer.browsercontextoptions
@@ -42,6 +46,9 @@ function getSource({ url, proxy }) {
             await page
               .waitForNavigation({ waitUntil: "load", timeout: 5000 })
               .catch(() => {});
+            if (extraWait > 0) {
+              await new Promise((r) => setTimeout(r, extraWait));
+            }
             const html = await page.content();
             await context.close();
             isResolved = true;
