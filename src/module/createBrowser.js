@@ -1,4 +1,6 @@
 const { connect } = require("puppeteer-real-browser")
+const StealthPlugin = require("puppeteer-extra-plugin-stealth")
+
 async function createBrowser() {
     try {
         if (global.finished == true) return
@@ -7,11 +9,18 @@ async function createBrowser() {
 
         // console.log('Launching the browser...');
 
+        const stealth = StealthPlugin()
+        // puppeteer-real-browser already handles iframe.contentWindow and user-agent override
+        // via rebrowser. Disabling those evasions avoids double-patching conflicts.
+        stealth.enabledEvasions.delete("iframe.contentWindow")
+        stealth.enabledEvasions.delete("user-agent-override")
+
         const { browser } = await connect({
             headless: false,
             turnstile: true,
             connectOption: { defaultViewport: null },
             disableXvfb: false,
+            plugins: [stealth],
         })
 
         // console.log('Browser launched');

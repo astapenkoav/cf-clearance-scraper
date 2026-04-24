@@ -23,6 +23,10 @@ function solveTurnstileMin({ url, proxy }) {
     try {
       const page = await context.newPage();
 
+      await page.setExtraHTTPHeaders({
+        "Accept-Language": "en-US,en;q=0.9",
+      });
+
       if (proxy?.username && proxy?.password)
         await page.authenticate({
           username: proxy.username,

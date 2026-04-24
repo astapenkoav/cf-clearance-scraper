@@ -20,6 +20,11 @@ function getSource({ url, proxy }) {
     try {
       const page = await context.newPage();
 
+      // Set realistic Accept-Language and cache headers
+      await page.setExtraHTTPHeaders({
+        "Accept-Language": "en-US,en;q=0.9",
+      });
+
       if (proxy?.username && proxy?.password)
         await page.authenticate({
           username: proxy.username,

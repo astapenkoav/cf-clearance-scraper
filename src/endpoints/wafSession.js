@@ -1,15 +1,7 @@
-async function findAcceptLanguage(page) {
-  return await page.evaluate(async () => {
-    const result = await fetch("https://httpbin.org/get")
-      .then((res) => res.json())
-      .then(
-        (res) =>
-          res.headers["Accept-Language"] || res.headers["accept-language"]
-      )
-      .catch(() => null);
-    return result;
-  });
-}
+// Static Accept-Language matching common US English browser profile.
+// Previously this was fetched from httpbin.org which added third-party dependency
+// and leaked bot-like behavior (extra request to a testing service on startup).
+const DEFAULT_ACCEPT_LANGUAGE = "en-US,en;q=0.9";
 
 function getSource({ url, proxy }) {
   return new Promise(async (resolve, reject) => {
@@ -33,12 +25,17 @@ function getSource({ url, proxy }) {
     try {
       const page = await context.newPage();
 
+      // Set Accept-Language header so all requests from this page include it
+      await page.setExtraHTTPHeaders({
+        "Accept-Language": DEFAULT_ACCEPT_LANGUAGE,
+      });
+
       if (proxy?.username && proxy?.password)
         await page.authenticate({
           username: proxy.username,
           password: proxy.password,
         });
-      let acceptLanguage = await findAcceptLanguage(page);
+      let acceptLanguage = DEFAULT_ACCEPT_LANGUAGE;
       await page.setRequestInterception(true);
       page.on("request", async (request) => request.continue());
       page.on("response", async (res) => {
