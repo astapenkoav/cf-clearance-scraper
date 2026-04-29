@@ -35,6 +35,33 @@ const schema = {
             "type": "integer",
             "minimum": 0,
             "maximum": 30000
+        },
+        "waitForSelector": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+        },
+        "waitForSelectorTimeout": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 60000
+        },
+        "cookies": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "value": { "type": "string" },
+                    "domain": { "type": "string" },
+                    "path": { "type": "string" },
+                    "secure": { "type": "boolean" },
+                    "httpOnly": { "type": "boolean" },
+                    "expires": { "type": "number" }
+                },
+                "required": ["name", "value"],
+                "additionalProperties": true
+            }
         }
     },
     "required": ["mode", "url"],

@@ -1,1 +1,13 @@
 node_modules
+# Local environment / state
+.env
+.env.local
+*.bak
+*.bak.*
+*.backup
+
+# Local service unit (machine-specific)
+cf-scraper.service
+
+# Local test scripts
+test_service.sh
